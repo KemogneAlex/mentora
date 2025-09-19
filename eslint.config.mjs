@@ -1,16 +1,37 @@
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
+import prettierConfig from "eslint-config-prettier";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
+  recommendedConfig: {
+    eslint: {
+      rules: {
+        // Désactiver les règles qui pourraient entrer en conflit avec Prettier
+        ...prettierConfig.rules,
+      },
+    },
+  },
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends(
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:prettier/recommended"
+  ),
+  {
+    plugins: {
+      prettier: compat.plugin("prettier"),
+    },
+    rules: {
+      "prettier/prettier": ["error", {}, { usePrettierrc: true }],
+    },
+  },
   {
     ignores: [
       "node_modules/**",
